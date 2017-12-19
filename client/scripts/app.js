@@ -65,6 +65,7 @@ var app = {
       success: function(data) {
         
         data = JSON.parse(data);
+        debugger;
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
@@ -75,8 +76,7 @@ var app = {
         console.log('and now', mostRecentMessage, data.results);
 
         // Only bother updating the DOM if we have a new message
-        // if (mostRecentMessage.objectId !== app.lastMessageId) {
-        if (true) {
+        if (mostRecentMessage.objectId !== app.lastMessageId) {
         
           // Update the UI with the fetched rooms
           app.renderRoomList(data.results);

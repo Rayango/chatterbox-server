@@ -31,7 +31,7 @@ var defaultCorsHeaders = {
 var messages = [ 
   {
     createdAt: '2017-12-19T00:08:57.046Z',
-    objectId: 'JTQijEPQdY',
+    objectId: '0',
     roomname: 'lobby',
     text: 'f',
     updatedAt: '2017-12-19T00:08:57.046Z',
@@ -39,15 +39,19 @@ var messages = [
   },
   {
     username: 'mary',
+    objectId: '1',
     text: 'hi',
     roomname: 'lobby'
   },
   {
     username: 'tim',
+    objectId: '2',
     text: 'yo',
     roomname: 'lobby'
   }
 ];
+
+var nextObjectId = 3;
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -96,9 +100,15 @@ var requestHandler = function(request, response) {
   
     request.on('data', (chunk) => {
       receivedMessage.push(chunk);
-    }).on('end', () => {
-      receivedMessage = Buffer.concat(receivedMessage).toString();
-      messages.unshift(JSON.parse(receivedMessage));
+    });
+
+    request.on('end', () => {
+      receivedMessage = JSON.parse(receivedMessage.join(''));
+
+      receivedMessage['objectId'] = nextObjectId.toString();
+ 
+      nextObjectId++;
+      messages.push(receivedMessage);
 
     });
     statusCode = 201;
@@ -114,8 +124,6 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end();
   }
-
-  
   
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
