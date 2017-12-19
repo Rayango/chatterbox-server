@@ -14,6 +14,7 @@ describe('Node Server Request Listener Function', function() {
   it('Should answer GET requests for /classes/messages with a 200 status code', function() {
     // This is a fake server request. Normally, the server would provide this,
     // but we want to test our function's behavior totally independent of the server code
+
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
@@ -56,7 +57,7 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
-  it('Should accept posts to /classes/room', function() {
+  it('Should accept posts to /classes/messages with a room', function() {
     var stubMsg = {
       username: 'Jono',
       message: 'Do my bidding!'
@@ -65,7 +66,7 @@ describe('Node Server Request Listener Function', function() {
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
-
+    console.log(res);
     // Expect 201 Created response status
     expect(res._responseCode).to.equal(201);
 

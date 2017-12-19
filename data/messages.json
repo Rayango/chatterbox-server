@@ -1,0 +1,10 @@
+["{\"username\":\"Jono\",\"message\":\"Do my bidding!\"}",
+"{\"username\":\"Donald\",\"message\":\"Do my bidding!\"}"]
+
+  fs.readFile('./data/messages.json', 'utf8', function(err, data) {
+    if (err) {
+      console.error('parse error');
+    }
+    var body = JSON.parse(data);
+    console.log('read file: ', body);
+  });
