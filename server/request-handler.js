@@ -12,6 +12,8 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var fs = require('fs');
+var urlmodule = require('url');
+var _ = require('underscore');
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
 // are on different domains, for instance, your chat client.
@@ -31,7 +33,7 @@ var defaultCorsHeaders = {
 var messages = [ 
   {
     createdAt: '2017-12-19T00:08:57.046Z',
-    objectId: '0',
+    objectId: '2',
     roomname: 'lobby',
     text: 'f',
     updatedAt: '2017-12-19T00:08:57.046Z',
@@ -45,7 +47,7 @@ var messages = [
   },
   {
     username: 'tim',
-    objectId: '2',
+    objectId: '0',
     text: 'yo',
     roomname: 'lobby'
   }
@@ -70,7 +72,8 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var {headers, method, url} = request; 
-
+  var urlObject = urlmodule.parse(url, true);
+  //console.log('url Object', urlObject);
   // The outgoing status.
   var statusCode = 200;
 
@@ -90,13 +93,35 @@ var requestHandler = function(request, response) {
     response.end();
   });
   
-  if (method === 'GET' && url === '/classes/messages') {
+  if (method === 'GET' && urlObject.pathname === '/classes/messages') {
+  
+    var messagesCopy = messages.slice();
     statusCode = 200;
     response.writeHead(statusCode, headers);
-    var body = {results: messages};
+    if (urlObject.query && urlObject.query['where'] !== undefined) {
+      console.log('URLOBJECT ---->', urlObject.query['where']);
+      var roomNameFilter = JSON.parse(urlObject.query['where']).roomname;
+      
+      messagesCopy = _.filter(messagesCopy, function(message) {
+        console.log('truthy test: ', message.roomname, roomNameFilter);
+        return message.roomname === roomNameFilter;
+      }); 
+      console.log('VALID MESSAGES ---->', messagesCopy);
+      var body = {results: messagesCopy};
+    }
+
+    if (urlObject.query && urlObject.query['order'] === '-createdAt') {
+      reversedMessage = messagesCopy.slice().reverse();
+      var body = {results: reversedMessage};
+    } else {
+      var body = {results: messagesCopy};
+    }
+    
     response.end(JSON.stringify(body));
-  } else if (method === 'POST' && url === '/classes/messages') {
+
+  } else if (method === 'POST' && urlObject.pathname === '/classes/messages') {
     var receivedMessage = [];
+
   
     request.on('data', (chunk) => {
       receivedMessage.push(chunk);
@@ -108,7 +133,7 @@ var requestHandler = function(request, response) {
       receivedMessage['objectId'] = nextObjectId.toString();
  
       nextObjectId++;
-      messages.push(receivedMessage);
+      messages.unshift(receivedMessage);
 
     });
     statusCode = 201;

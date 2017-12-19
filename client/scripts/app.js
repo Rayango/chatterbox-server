@@ -60,7 +60,7 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-
+      data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
         
@@ -73,7 +73,6 @@ var app = {
         app.messages = data.results;
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
-        console.log('and now', mostRecentMessage, data.results);
 
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId) {
