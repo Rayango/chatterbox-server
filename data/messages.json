@@ -1,10 +1,106 @@
-["{\"username\":\"Jono\",\"message\":\"Do my bidding!\"}",
-"{\"username\":\"Donald\",\"message\":\"Do my bidding!\"}"]
-
-  fs.readFile('./data/messages.json', 'utf8', function(err, data) {
-    if (err) {
-      console.error('parse error');
+[
+    {
+        "username": "ginger",
+        "text": "is it still borken",
+        "roomname": "lobby",
+        "objectId": "16"
+    },
+    {
+        "username": "ginger",
+        "text": "hello",
+        "roomname": "lobby",
+        "objectId": "15"
+    },
+    {
+        "username": "ginger",
+        "text": "this is bunk",
+        "roomname": "lobby",
+        "objectId": "14"
+    },
+    {
+        "username": "ginger",
+        "text": "now",
+        "roomname": "lobby",
+        "objectId": "13"
+    },
+    {
+        "username": "ginger",
+        "text": "why nooo",
+        "roomname": "lobby",
+        "objectId": "12"
+    },
+    {
+        "username": "ginger",
+        "text": "another post",
+        "roomname": "lobby",
+        "objectId": "11"
+    },
+    {
+        "username": "ginger",
+        "text": "post",
+        "roomname": "lobby",
+        "objectId": "10"
+    },
+    {
+        "username": "ginger",
+        "text": "Again",
+        "roomname": "lobby",
+        "objectId": "9"
+    },
+    {
+        "username": "ginger",
+        "text": "New Messages",
+        "roomname": "lobby",
+        "objectId": "8"
+    },
+    {
+        "username": "ginger",
+        "text": "MEEE",
+        "roomname": "lobby",
+        "objectId": "7"
+    },
+    {
+        "username": "ginger",
+        "text": "AND THIS",
+        "roomname": "lobby",
+        "objectId": "6"
+    },
+    {
+        "username": "ginger",
+        "text": "this will workrrkr",
+        "roomname": "lobby",
+        "objectId": "5"
+    },
+    {
+        "username": "ginger",
+        "text": "Again!!!!! ",
+        "roomname": "lobby",
+        "objectId": "4"
+    },
+    {
+        "username": "ginger",
+        "text": "testing MessagE! ",
+        "roomname": "lobby",
+        "objectId": "3"
+    },
+    {
+        "createdAt": "2017-12-19T00:08:57.046Z",
+        "objectId": "2",
+        "roomname": "lobby",
+        "text": "f",
+        "updatedAt": "2017-12-19T00:08:57.046Z",
+        "username": "asf"
+    },
+    {
+        "username": "mary",
+        "objectId": "1",
+        "text": "hi",
+        "roomname": "lobby"
+    },
+    {
+        "username": "tim",
+        "objectId": "0",
+        "text": "yo",
+        "roomname": "lobby"
     }
-    var body = JSON.parse(data);
-    console.log('read file: ', body);
-  });
+]

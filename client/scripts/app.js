@@ -32,7 +32,7 @@ var app = {
     // Poll for new messages
     setInterval(function() {
       app.fetch(true);
-    }, 10000);
+    }, 5000);
   },
 
   send: function(message) {
@@ -65,7 +65,7 @@ var app = {
       success: function(data) {
         
         data = JSON.parse(data);
-        debugger;
+        
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 

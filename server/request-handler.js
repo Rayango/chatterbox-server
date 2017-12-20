@@ -14,6 +14,9 @@ this file and include it in basic-server.js so that it actually works.
 var fs = require('fs');
 var urlmodule = require('url');
 var _ = require('underscore');
+var storage = require('../data/messages.js');
+var path = require('path');
+
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
 // are on different domains, for instance, your chat client.
@@ -30,46 +33,7 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var messages = [ 
-  {
-    createdAt: '2017-12-19T00:08:57.046Z',
-    objectId: '2',
-    roomname: 'lobby',
-    text: 'f',
-    updatedAt: '2017-12-19T00:08:57.046Z',
-    username: 'asf'
-  },
-  {
-    username: 'mary',
-    objectId: '1',
-    text: 'hi',
-    roomname: 'lobby'
-  },
-  {
-    username: 'tim',
-    objectId: '0',
-    text: 'yo',
-    roomname: 'lobby'
-  }
-];
-
-var nextObjectId = 3;
-
 var requestHandler = function(request, response) {
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
-
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var {headers, method, url} = request; 
   var urlObject = urlmodule.parse(url, true);
@@ -92,32 +56,53 @@ var requestHandler = function(request, response) {
     response.statusCode = 400;
     response.end();
   });
-  
-  if (method === 'GET' && urlObject.pathname === '/classes/messages') {
-  
-    var messagesCopy = messages.slice();
-    statusCode = 200;
-    response.writeHead(statusCode, headers);
-    if (urlObject.query && urlObject.query['where'] !== undefined) {
-      console.log('URLOBJECT ---->', urlObject.query['where']);
-      var roomNameFilter = JSON.parse(urlObject.query['where']).roomname;
-      
-      messagesCopy = _.filter(messagesCopy, function(message) {
-        console.log('truthy test: ', message.roomname, roomNameFilter);
-        return message.roomname === roomNameFilter;
-      }); 
-      console.log('VALID MESSAGES ---->', messagesCopy);
-      var body = {results: messagesCopy};
-    }
 
-    if (urlObject.query && urlObject.query['order'] === '-createdAt') {
-      reversedMessage = messagesCopy.slice().reverse();
-      var body = {results: reversedMessage};
-    } else {
-      var body = {results: messagesCopy};
-    }
+  var staticEndpoints = {
+    '/': 'text/html',
+    '/styles/styles.css': 'text/css',
+    '/images/spiffygif_46x46.gif': 'image/gif',
+    '/scripts/app.js': 'text/javascript',
+    '/bower_components/jquery/dist/jquery.js': 'text/javascript',
+    '/env/config.js': 'text/javascript'
+  };
+
+  if (staticEndpoints[urlObject.pathname]) {
+    var endpoint = urlObject.pathname === '/' ? './client/index.html' : './client' + urlObject.pathname;
+    fs.readFile(endpoint, function(err, data) {
+      response.writeHead(200, {'Content-Type': staticEndpoints[urlObject.pathname]});
+      response.write(data);
+      response.end();
+    });
+  } else if (method === 'GET' && urlObject.pathname === '/classes/messages') {
+  
+    var messagesCopy = storage.getMessages();
     
-    response.end(JSON.stringify(body));
+    if (!messagesCopy) {
+      statusCode = 404;
+      response.writeHead(statusCode, headers);
+      response.end();
+    } else {
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
+
+      if (urlObject.query && urlObject.query['where'] !== undefined) {
+        var roomNameFilter = JSON.parse(urlObject.query['where']).roomname;
+        
+        messagesCopy = _.filter(messagesCopy, function(message) {
+          return message.roomname === roomNameFilter;
+        }); 
+        var body = {results: messagesCopy};
+      }
+
+      if (urlObject.query && urlObject.query['order'] === '-createdAt') {
+        reversedMessage = messagesCopy.slice().reverse();
+        var body = {results: reversedMessage};
+      } else {
+        var body = {results: messagesCopy};
+      }
+      
+      response.end(JSON.stringify(body));
+    }
 
   } else if (method === 'POST' && urlObject.pathname === '/classes/messages') {
     var receivedMessage = [];
@@ -129,11 +114,8 @@ var requestHandler = function(request, response) {
 
     request.on('end', () => {
       receivedMessage = JSON.parse(receivedMessage.join(''));
-
-      receivedMessage['objectId'] = nextObjectId.toString();
- 
-      nextObjectId++;
-      messages.unshift(receivedMessage);
+      
+      storage.addMessage(receivedMessage);
 
     });
     statusCode = 201;
@@ -157,7 +139,6 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  
   
 };
 
